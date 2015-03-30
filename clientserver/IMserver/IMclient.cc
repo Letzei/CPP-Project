@@ -2,6 +2,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "messagehandler.h"
+#include "protocol.h"
 
 #include <algorithm>
 #include <iostream>
@@ -32,13 +33,16 @@ string readString(const Connection& conn) {
 	}
 	return s;
 }
-
+/*
 bool is_numerical(const string& s){
 	return !s.empty() && find_if(s.begin(), s.end(), [](char c) {return !isdigit(c); }) == s.end();
 }
-
+*/
 void display_manual(){
-	cout << "You are now connected to the server. \n The different operations you can perform are listed below:" << endl;
+	cout << "You are now connected to the server." << endl;
+	cout << "==========================================================" << endl;
+	cout << "The different operations you can perform are listed below:" << endl;
+	cout << "Type the number of the desired command, then press ENTER, followed by the parameters with a space in between" << endl;
 	cout << "1. List newsgroups." << endl;
 	cout << "2. Create newgroup. <title>" << endl;
 	cout << "3. Delete newsgroup. <ID>" << endl;
@@ -79,38 +83,32 @@ int main(int argc, char* argv[]) {
 		try {
 			cout << ">>>";
 			cin >> input;
-			if(is_numerical(input)){com = stoi(input);}
+			com = atoi(input.c_str());
 			switch(com) {
-				case 1:
-			
+				case 1: /* List Newsgroups */
+					mh.write_command(Protocol::COM_LIST_NG);
+					mh.write_command(Protocol::COM_END);
 				break;
 
-				case 2:
-			
+				case 2: /* Create a Newsgroup */
 				break;
 
-				case 3:
-			
+				case 3: /* Delete Newsgroup */
 				break;
-				
-				case 4:
-			
+
+				case 4: /* List Articles */
 				break;
-				
-				case 5:
-			
+
+				case 5: /* Create Article */
 				break;
-				
-				case 6:
-			
+
+				case 6: /* Delete Article */
 				break;
-				
-				case 7:
-			
+
+				case 7: /* Get Article */ 
 				break;
-				
-				default:
-			
+
+				default: /* not a number */
 				break;
 			}
 		} catch (ConnectionClosedException&) {
