@@ -15,5 +15,5 @@ IMclient: IMclient.o messagehandler.o
 clean:
 	rm -f *.o *.d
 
-run: clean IMserver
+run: clean IMserver IMclient
 	./IMserver 1337

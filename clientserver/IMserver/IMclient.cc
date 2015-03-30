@@ -13,36 +13,14 @@
 using namespace std;
 
 /*
- * Send an integer to the server as four bytes.
- */
-void writeNumber(const Connection& conn, int value) {
-	conn.write((value >> 24) & 0xFF);
-	conn.write((value >> 16) & 0xFF);
-	conn.write((value >> 8)	 & 0xFF);
-	conn.write(value & 0xFF);
-}
-
-/*
- * Read a string from the server.
- */
-string readString(const Connection& conn) {
-	string s;
-	char ch;
-	while ((ch = conn.read()) != '$') {
-		s += ch;
-	}
-	return s;
-}
-/*
 bool is_numerical(const string& s){
 	return !s.empty() && find_if(s.begin(), s.end(), [](char c) {return !isdigit(c); }) == s.end();
 }
 */
 void display_manual(){
-	cout << "You are now connected to the server." << endl;
-	cout << "==========================================================" << endl;
+	cout << "==============================================================================================" << endl;
 	cout << "The different operations you can perform are listed below:" << endl;
-	cout << "Type the number of the desired command, then press ENTER, followed by the parameters with a space in between" << endl;
+	cout << "Type the number of the desired command, then press ENTER, followed by the parameters seperated with a space" << endl;
 	cout << "1. List newsgroups." << endl;
 	cout << "2. Create newgroup. <title>" << endl;
 	cout << "3. Delete newsgroup. <ID>" << endl;
@@ -51,12 +29,70 @@ void display_manual(){
 	cout << "6. Delete article. <IDgroup> <IDarticle>" << endl;
 	cout << "7. Get article. <IDgroup> <IDarticle>" << endl;
 	cout << "To display this manual again type \"help\", \"h\", \"man\" or \"manual\"" << endl;
+	cout << "==============================================================================================" << endl;
+
 }
 
+void list_newsgroups(MessageHandler mh){
+	mh.write_command(Protocol::COM_LIST_NG);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_LIST_NG){
+		throw exception();
+	}
+	if(mh.read_command() != Protocol::PAR_NUM){
+		throw exception();
+	}
+
+	int nr_ngs = mh.read_number();
+	cout << "Number of Newsgoups: " << nr_ngs << endl;
+
+	for(int i = 0; i < nr_ngs; ++i){
+		if(mh.read_command() != Protocol::PAR_NUM){
+			throw exception();
+		}
+		int id = mh.read_number();
+		cout << "Newsgroup ID: " << id << "		";
+		if(mh.read_command() != Protocol::PAR_STRING){
+			throw exception();
+		}
+		int nbr_chars = mh.read_number();
+		string name = mh.read_string(nbr_chars);
+		cout << "Newsgroup Name: " << name << endl;
+	}
+	if(mh.read_command() != Protocol::ANS_END){
+		throw exception();
+	}
+	cout << "List ngs klar" << endl;
+}
+
+void create_newsgroup(MessageHandler mh){
+	mh.write_command(Protocol::COM_CREATE_NG);
+	cout << "Type the name of the newsgroup you want to create" << endl;
+	cout << ">>>";
+	string name;
+	cin >> name;
+	mh.write_string(name);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_CREATE_NG){
+		throw exception();
+	}
+	if(mh.read_command() == Protocol::ANS_ACK){
+		cout << "Newsgroup was succesfully created" << endl;
+	} else {
+		if(mh.read_command() != Protocol::ANS_NAK) { throw exception(); }
+		if(mh.read_command() != Protocol::ERR_NG_ALREADY_EXISTS) { throw exception(); }
+		cout << "Newsgroup already exists" << endl;
+	}
+	if(mh.read_command() != Protocol::ANS_END){
+		throw exception();
+	}
+}
 
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
-		cerr << "Usage: myclient host-name port-number" << endl;
+		cerr << "Usage: IMclient host-name port-number" << endl;
 		exit(1);
 	}
 
@@ -76,6 +112,8 @@ int main(int argc, char* argv[]) {
 
 	MessageHandler mh;
 	mh.set_connection(conn);
+
+	cout << "You are now connected to the server." << endl;
 	display_manual();
 	int com;
 	string input;
@@ -86,11 +124,11 @@ int main(int argc, char* argv[]) {
 			com = atoi(input.c_str());
 			switch(com) {
 				case 1: /* List Newsgroups */
-					mh.write_command(Protocol::COM_LIST_NG);
-					mh.write_command(Protocol::COM_END);
+				list_newsgroups(mh);
 				break;
 
 				case 2: /* Create a Newsgroup */
+				create_newsgroup(mh);
 				break;
 
 				case 3: /* Delete Newsgroup */
