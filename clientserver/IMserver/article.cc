@@ -6,8 +6,6 @@ using namespace std;
 Article::Article(int id, string title, string author, string content) :
 	id(id), title(title), author(author), content(content) {}
 
-//Article::~Article() {}
-
 int Article::get_id() const {
 	return id;
 }

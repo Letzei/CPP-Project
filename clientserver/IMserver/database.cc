@@ -30,8 +30,6 @@ vector<Newsgroup> Database::list_all_newsgroups() const {
 			ngs.push_back(ng);
 		}
 	}
-	cout << newsgroups.size() << endl;
-	cout << ngs.size() << endl;
 	return ngs;
 }
 
@@ -73,30 +71,14 @@ bool Database::delete_newsgroup(int id){
 		return true;
 	}
 	return false;
-
-	/*
-	auto it = newsgroups.erase(remove_if(newsgroups.begin(), newsgroups.end(), 
-		[&] (Newsgroup ng) { return ng.get_id() == id; }), newsgroups.end());
-
-	if(it != newsgroups.end()){
-		return true;
-	} else {
-		return false;
-	}
-	*/
 }
 
 
 vector<Article> Database::list_articles(int id){
 	vector<Article> empty;
-	//if(newsgroup_exists(id)){
-	//	return newsgroups[id].get_articles();
-	//}
 	auto it = find_if(newsgroups.begin(), newsgroups.end(), [&] 
 		(Newsgroup ng) { return ng.get_id() == id; });
 	if(it != newsgroups.end()){
-		cout << id << endl;
-		cout << newsgroups.size() << endl;
 		return newsgroups[id].get_articles();
 	} else {
 		return empty;
@@ -110,7 +92,6 @@ bool Database::create_article(int ng_id, const string& title,
 		(Newsgroup ng) { return ng.get_id() == ng_id; });
 
 	if(it != newsgroups.end()){
-		cout << "in database::create_article.. NG FOUND" << endl;
 		int id = newsgroups[ng_id].get_articles().size();
 		Article art(id, title, author, text);
 		newsgroups[ng_id].add_article(art);

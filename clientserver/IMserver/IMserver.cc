@@ -23,17 +23,12 @@ MessageHandler mh;
 
 void list_newsgroups()
 {
-	cout << "in list_newsgroups().. reading command.." << endl;
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in list_newsgroups(). Expected COM_END" << endl;
 		throw exception();
 	}
-	cout << "Writing ANS_LIST_NG to mh" << endl;
 	mh.write_command(Protocol::ANS_LIST_NG);
 
 	vector<Newsgroup> newsgroups = db.list_all_newsgroups();
-
-	cout << "EFTER LIST ALL NEWSGROUPS()" << endl;
 
 	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(db.get_size());
@@ -42,25 +37,19 @@ void list_newsgroups()
 		mh.write_number(newsgroups[i].get_id());
 		mh.write_string(newsgroups[i].get_name());
 	}
-	cout << "Klar.. gör nu ANS_END" << endl;
 	mh.write_command(Protocol::ANS_END);
 }
 
 void create_newsgroup(){
-	cout << "Inside create_newsgroup()" << endl;
-
 	if(mh.read_command() != Protocol::PAR_STRING) {
 		throw exception();
 	}
 	int number_of_chars = mh.read_number();
-	cout << "NUMBER OF CHARS = " << number_of_chars << endl;
 	string newsgroup = mh.read_string(number_of_chars);
 
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in create_newsgroup().. Expected COM_END" << endl;
 		throw exception();
 	}
-	cout << "Writing ANS_CREATE_NG to mh" << endl;
 	mh.write_command(Protocol::ANS_CREATE_NG);
 
 	if(!db.newsgroup_exists(newsgroup)) {
@@ -72,23 +61,19 @@ void create_newsgroup(){
 		mh.write_command(Protocol::ANS_NAK);
 		mh.write_command(Protocol::ERR_NG_ALREADY_EXISTS);
 	}
-	cout << "Klar.. gör nu ANS_END" << endl;
 	mh.write_command(Protocol::ANS_END);
 }
 
 void delete_newsgroup(){
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in delete_newsgroup().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 
 	int id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in delete_newsgroup().. Expected COM_END" << endl;
 		throw exception();
 	}
-	cout << "Writing ANS_DELETE_NG to mh" << endl;
 	mh.write_command(Protocol::ANS_DELETE_NG);
 
 	if(db.newsgroup_exists(id)) {
@@ -100,20 +85,17 @@ void delete_newsgroup(){
 		mh.write_command(Protocol::ANS_NAK);
 		mh.write_command(Protocol::ERR_NG_DOES_NOT_EXIST);
 	}
-	cout << "Klar.. gör nu ANS_END" << endl;
 	mh.write_command(Protocol::ANS_END);
 }
 
 void list_articles(){
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in create_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 
 	int id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in create_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 
@@ -129,7 +111,6 @@ void list_articles(){
 			mh.write_number(a.get_id());
 			mh.write_string(a.get_title());
 		}
-		cout << "ARTICLES LISTED" << endl;
 	} else {
 		mh.write_command(Protocol::ANS_NAK);
 		mh.write_command(Protocol::ERR_NG_DOES_NOT_EXIST);
@@ -139,7 +120,6 @@ void list_articles(){
 
 void create_article(){
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in create_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 
@@ -150,7 +130,6 @@ void create_article(){
 	string text;
 
 	if(mh.read_command() != Protocol::PAR_STRING) {
-		cout << "Received wrong command in create_article().. Expected PAR_STRING" << endl;
 		throw exception();
 	}
 
@@ -158,7 +137,6 @@ void create_article(){
 	title = mh.read_string(number_of_chars);
 
 	if(mh.read_command() != Protocol::PAR_STRING) {
-		cout << "Received wrong command in create_article().. Expected PAR_STRING" << endl;
 		throw exception();
 	}
 
@@ -166,20 +144,13 @@ void create_article(){
 	author = mh.read_string(number_of_chars);
 
 	if(mh.read_command() != Protocol::PAR_STRING) {
-		cout << "Received wrong command in create_article().. Expected PAR_STRING" << endl;
 		throw exception();
 	}
 
 	number_of_chars = mh.read_number();
 	text = mh.read_string(number_of_chars);
 
-	cout << "ID = " << id << endl;
-	cout << "TITLE = " << title << endl;
-	cout << "AUTHOR = " << author << endl;
-	cout << "TEXT = " << text << endl;
-
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in create_article().. Expected COM_END" << endl;
 		throw exception();
 	}
 
@@ -188,7 +159,6 @@ void create_article(){
 		if(!db.create_article(id, title, author, text)){
 			throw exception();
 		}
-		cout << "ARTICLE CREATED" << endl;
 		mh.write_command(Protocol::ANS_ACK);
 	} else {
 		mh.write_command(Protocol::ANS_NAK);
@@ -199,19 +169,16 @@ void create_article(){
 
 void delete_article(){
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in delete_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 	int ng_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in delete_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 	int art_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in delete_article().. Expected COM_END)" << endl;
 		throw exception();
 	}
 
@@ -233,19 +200,16 @@ void delete_article(){
 
 void get_article(){
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in delete_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 	int ng_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::PAR_NUM) {
-		cout << "Received wrong command in delete_article().. Expected PAR_NUM" << endl;
 		throw exception();
 	}
 	int art_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
-		cout << "Received wrong command in delete_article().. Expected COM_END)" << endl;
 		throw exception();
 	}
 
@@ -298,59 +262,45 @@ int main(int argc, char* argv[]){
 		cout << "Server Initialized." << endl;
 	}
 	while (true) {
-		cout << "======inne i WHILE.. gör nu waitForActivity()..=====" << endl;
 		auto conn = server.waitForActivity();
 
-		cout << "efter waitForActivity()" << endl;
 		mh.set_connection(conn);
 
 		if (conn != nullptr) {
-			cout << "conn != null" << endl;
 			try {
-				cout << "i TRY.. gör nu MessageHandler.read_command" << endl;
 				unsigned char nbr = mh.read_command();
 				string result;
-				cout << "command = " << nbr << endl;
 
 				switch(nbr){
-					cout << "i switch case" << endl;
 					case Protocol::COM_LIST_NG: // list newsgroups
-					cout << "***case COM_LIST_NG***" << endl;
 					list_newsgroups();
 					break;
 
 					case Protocol::COM_CREATE_NG: // create newsgroup
-					cout << "***case COM_CREATE_NG***" << endl;
 					create_newsgroup();
 					break;
 
 					case Protocol::COM_DELETE_NG: // delete newsgroup
-					cout << "***case COM_DELETE_NG***" << endl;
 					delete_newsgroup();
 					break;
 
 					case Protocol::COM_LIST_ART: // list articles
-					cout << "***case COM_LIST_ART***" << endl;
 					list_articles();
 					break;
 
 					case Protocol::COM_CREATE_ART: // create article
-					cout << "***case COM_CREATE_ART***" << endl;
 					create_article();
 					break;
 
 					case Protocol::COM_DELETE_ART: // delete article
-						cout << "***case COM_DELETE_ART***" << endl;
 						delete_article();
 						break;
 
 					case Protocol::COM_GET_ART: // get article
-						cout << "***case COM_GET_ART***" << endl;
 						get_article();
 						break;
 
 					default:
-						cout << "***case DEFAULT***" << endl;
 						break;
 					}
 				} catch (ConnectionClosedException&) {
@@ -358,7 +308,6 @@ int main(int argc, char* argv[]){
 					cout << "Client closed connection" << endl;
 				}
 			} else {
-				cout << "conn = NULL!!" << endl;
 				conn = make_shared<Connection>();
 				server.registerConnection(conn);
 				cout << "New client connects" << endl;

@@ -6,7 +6,6 @@
 class Article {
 public:
 	Article(int, std::string, std::string, std::string);
-	//~Article();
 	int get_id() const;
 	void set_id(const int);
 	std::string get_title() const;

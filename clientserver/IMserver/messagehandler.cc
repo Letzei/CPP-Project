@@ -2,8 +2,6 @@
 #include "connection.h"
 #include "protocol.h"
 #include <string>
-//#include <stdexcept>
-//#include <cstdlib>
 
 using namespace std;
 
