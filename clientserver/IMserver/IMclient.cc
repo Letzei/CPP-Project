@@ -182,10 +182,10 @@ void create_article(MessageHandler mh) {
 
 void delete_article(MessageHandler mh) {
 	mh.write_command(Protocol::COM_DELETE_ART);
-	cout << ">>> Type the ID of the Newsgroup." << endl;
+	cout << ">>> Type the ID of the Newsgroup you want to delete." << endl;
 	int ng_id;
 	cin >> ng_id;
-	cout << ">>> Type the ID of teh Article." << endl;
+	cout << ">>> Type the ID of the Article you want to delete." << endl;
 	int art_id;
 	cin >> art_id;
 	mh.write_command(Protocol::PAR_NUM);
@@ -202,14 +202,59 @@ void delete_article(MessageHandler mh) {
 	} else if (ans == Protocol::ANS_NAK) {
 		unsigned char com = mh.read_command();
 		if(com == Protocol::ERR_NG_DOES_NOT_EXIST) {
-			cout << ">>> Couldn't delete article, newsgroup does not exist." << endl;
+			cout << ">>> Could not delete article, newsgroup does not exist." << endl;
 		} else if(com == Protocol::ERR_ART_DOES_NOT_EXIST){ 
-			cout << ">>> Couldn't delete article, article does not exist." << endl;
+			cout << ">>> Could not delete article, article does not exist." << endl;
 		}else { throw exception(); }
 	}
 	if(mh.read_command() != Protocol::ANS_END){ throw exception(); }
 }
 
+void get_article(MessageHandler mh){
+	mh.write_command(Protocol::COM_GET_ART);
+	cout << ">>> Type the ID of the Newsgroup you want to get." << endl;
+	int ng_id;
+	cin >> ng_id;
+	cout << ">>> Type the ID of the Article you want to get." << endl;
+	int art_id;
+	cin >> art_id;
+
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(ng_id);
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(art_id);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_GET_ART) { throw exception(); }
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK){
+		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
+		int nbr_chars = mh.read_number();
+		string name = mh.read_string(nbr_chars);
+
+		cout << ">>> Title: " << name << "	";
+
+		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
+		nbr_chars = mh.read_number();
+		name = mh.read_string(nbr_chars);
+
+		cout << ">>> Author: " << name << "	 ";
+
+		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
+		nbr_chars = mh.read_number();
+		name = mh.read_string(nbr_chars);
+
+		cout << ">>> Text: " << name << endl;
+	} else if (ans == Protocol::ANS_NAK){
+		unsigned char com = mh.read_command();
+		if(com == Protocol::ERR_NG_DOES_NOT_EXIST) {
+			cout << ">>> Could not fetch article, newsgroup does not exist." << endl;
+		} else if(com == Protocol::ERR_ART_DOES_NOT_EXIST){ 
+			cout << ">>> Could not fetch article, article does not exist." << endl;
+		} else { throw exception(); }
+	}
+	if(mh.read_command() != Protocol::ANS_END) { throw exception();}
+}
 
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
@@ -269,6 +314,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 				case 7: /* Get Article */ 
+				get_article(mh);
 				break;
 
 				default: /* not a number */
