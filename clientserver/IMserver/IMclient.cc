@@ -63,13 +63,12 @@ void list_newsgroups(MessageHandler mh){
 	if(mh.read_command() != Protocol::ANS_END){
 		throw exception();
 	}
-	cout << "List ngs klar" << endl;
 }
 
 void create_newsgroup(MessageHandler mh){
 	mh.write_command(Protocol::COM_CREATE_NG);
 	cout << "Type the name of the newsgroup you want to create" << endl;
-	cout << ">>>";
+	cout << ">>> ";
 	string name;
 	cin >> name;
 	mh.write_string(name);
@@ -78,10 +77,11 @@ void create_newsgroup(MessageHandler mh){
 	if(mh.read_command() != Protocol::ANS_CREATE_NG){
 		throw exception();
 	}
-	if(mh.read_command() == Protocol::ANS_ACK){
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK){
 		cout << "Newsgroup was succesfully created" << endl;
 	} else {
-		if(mh.read_command() != Protocol::ANS_NAK) { throw exception(); }
+		if(ans != Protocol::ANS_NAK) { throw exception(); }
 		if(mh.read_command() != Protocol::ERR_NG_ALREADY_EXISTS) { throw exception(); }
 		cout << "Newsgroup already exists" << endl;
 	}
@@ -90,9 +90,130 @@ void create_newsgroup(MessageHandler mh){
 	}
 }
 
+void delete_newsgroup(MessageHandler mh){
+	mh.write_command(Protocol::COM_DELETE_NG);
+	cout << "Type the ID number of the newsgroup you want to delete." << endl;
+	cout << ">>> ";
+	int id;
+	cin >> id;
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(id);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_DELETE_NG) { throw exception(); }
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK) {
+		cout << ">>> Newsgroup deleted." << endl;
+	} else {
+		if(ans != Protocol::ANS_NAK) { throw exception(); }
+		if(mh.read_command() != Protocol::ERR_NG_DOES_NOT_EXIST) { throw exception(); }
+		cout << ">>> A newsgroup with that ID does not exist." << endl;
+
+	}
+	if(mh.read_command() != Protocol::ANS_END){ throw exception(); }
+}
+
+void list_articles(MessageHandler mh){
+	mh.write_command(Protocol::COM_LIST_ART);
+	cout << "Type the ID of the newsgroup containing the articles." << endl;
+	int id;
+	cout << ">>> ";
+	cin >> id;
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(id);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_LIST_ART) { throw exception(); }
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK) {
+		if(mh.read_command() != Protocol::PAR_NUM) { throw exception(); }
+		int nbr_articles = mh.read_number();
+		for(int i = 0; i < nbr_articles; ++i){
+			if(mh.read_command() != Protocol::PAR_NUM) { throw exception(); }
+			cout << "ID: " << mh.read_number() << "	";
+			if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
+			int len = mh.read_number();
+			cout << "Title: " << mh.read_string(len) << endl;
+		}
+
+	} else {
+		if(ans != Protocol::ANS_NAK) { throw exception(); }
+		if(mh.read_command() != Protocol::ERR_NG_DOES_NOT_EXIST) { throw exception(); }
+	}
+	if(mh.read_command() != Protocol::ANS_END){ throw exception(); }
+}
+
+void create_article(MessageHandler mh) {
+	mh.write_command(Protocol::COM_CREATE_ART);
+	cout << ">>> Type the ID of the Newsgroup." << endl;
+	int id;
+	cin >> id;
+
+	cout << ">>> Type the Title of the article." << endl;
+	string title;
+	cin >> title;
+
+	cout << ">>> Type the Author of the article." << endl;
+	string author;
+	cin >> author;
+
+	cout << ">>> Type the text of the article, without pressing ENTER." << endl;
+	string text;
+	cin >> text;
+	
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(id);
+	mh.write_string(title);
+	mh.write_string(author);
+	mh.write_string(text);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_CREATE_ART) { throw exception(); }
+
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK) {
+		cout << ">>> Article created." << endl;
+	} else if (ans == Protocol::ANS_NAK) {
+		if(mh.read_command() != Protocol::ERR_NG_DOES_NOT_EXIST) { throw exception(); }
+		cout << ">>> Couldn't create article, newsgroup does not exist." << endl;
+	} else { throw exception(); }
+	if(mh.read_command() != Protocol::ANS_END){ throw exception(); }
+}
+
+void delete_article(MessageHandler mh) {
+	mh.write_command(Protocol::COM_DELETE_ART);
+	cout << ">>> Type the ID of the Newsgroup." << endl;
+	int ng_id;
+	cin >> ng_id;
+	cout << ">>> Type the ID of teh Article." << endl;
+	int art_id;
+	cin >> art_id;
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(ng_id);
+	mh.write_command(Protocol::PAR_NUM);
+	mh.write_number(art_id);
+	mh.write_command(Protocol::COM_END);
+
+	if(mh.read_command() != Protocol::ANS_DELETE_ART) { throw exception(); }
+
+	unsigned char ans = mh.read_command();
+	if(ans == Protocol::ANS_ACK) {
+		cout << ">>> Article deleted." << endl;
+	} else if (ans == Protocol::ANS_NAK) {
+		unsigned char com = mh.read_command();
+		if(com == Protocol::ERR_NG_DOES_NOT_EXIST) {
+			cout << ">>> Couldn't delete article, newsgroup does not exist." << endl;
+		} else if(com == Protocol::ERR_ART_DOES_NOT_EXIST){ 
+			cout << ">>> Couldn't delete article, article does not exist." << endl;
+		}else { throw exception(); }
+	}
+	if(mh.read_command() != Protocol::ANS_END){ throw exception(); }
+}
+
+
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
-		cerr << "Usage: IMclient host-name port-number" << endl;
+		cerr << "Usage: IMclient host-name port-number." << endl;
 		exit(1);
 	}
 
@@ -119,7 +240,7 @@ int main(int argc, char* argv[]) {
 	string input;
 	for(;;) {
 		try {
-			cout << ">>>";
+			cout << ">>> "; 
 			cin >> input;
 			com = atoi(input.c_str());
 			switch(com) {
@@ -132,15 +253,19 @@ int main(int argc, char* argv[]) {
 				break;
 
 				case 3: /* Delete Newsgroup */
+				delete_newsgroup(mh);
 				break;
 
 				case 4: /* List Articles */
+				list_articles(mh);
 				break;
 
 				case 5: /* Create Article */
+				create_article(mh);
 				break;
 
 				case 6: /* Delete Article */
+				delete_article(mh);
 				break;
 
 				case 7: /* Get Article */ 
