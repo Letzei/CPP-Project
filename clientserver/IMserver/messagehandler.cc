@@ -13,6 +13,7 @@ void MessageHandler::set_connection(const shared_ptr<Connection>& conn) {
 
 int MessageHandler::read_number(){
 	if(read_command() != Protocol::PAR_NUM){
+		cout << "Error when trying to read a number" << endl;
 		throw exception();
 	}
 	return read_byte();
@@ -52,7 +53,10 @@ void MessageHandler::write_command(unsigned char com) {
 }
 
 string MessageHandler::read_string(){
-		if(read_command() != Protocol::PAR_STRING) { throw exception(); }
+		if(read_command() != Protocol::PAR_STRING) { 
+			cout << "Error when trying to read a string" << endl; 
+			throw exception(); 
+		}
 		int len = read_byte();
 
 		string s;
