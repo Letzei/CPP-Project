@@ -37,14 +37,14 @@ void list_newsgroups(MessageHandler mh){
 	}
 
 	int nr_ngs = mh.read_number();
-	cout << "Number of Newsgoups: " << nr_ngs << endl;
+	cout << ">>> Number of Newsgoups: " << nr_ngs << endl;
 
 	for(int i = 0; i < nr_ngs; ++i){
 		int id = mh.read_number();
-		cout << "Newsgroup ID: " << id << "		";
+		cout << ">>> Newsgroup ID: " << id << "		";
 
 		string name = mh.read_string();
-		cout << "Newsgroup Name: " << name << endl;
+		cout << ">>> Newsgroup Name: " << name << endl;
 	}
 	if(mh.read_command() != Protocol::ANS_END){
 		throw exception();
@@ -53,7 +53,7 @@ void list_newsgroups(MessageHandler mh){
 
 void create_newsgroup(MessageHandler mh){
 	mh.write_command(Protocol::COM_CREATE_NG);
-	cout << "Type the name of the newsgroup you want to create" << endl;
+	cout << ">>> Type the name of the newsgroup you want to create" << endl;
 	cout << ">>> ";
 	string name;
 	cin >> name;
@@ -65,11 +65,11 @@ void create_newsgroup(MessageHandler mh){
 	}
 	unsigned char ans = mh.read_command();
 	if(ans == Protocol::ANS_ACK){
-		cout << "Newsgroup was succesfully created" << endl;
+		cout << ">>> Newsgroup was succesfully created" << endl;
 	} else {
 		if(ans != Protocol::ANS_NAK) { throw exception(); }
 		if(mh.read_command() != Protocol::ERR_NG_ALREADY_EXISTS) { throw exception(); }
-		cout << "Newsgroup already exists" << endl;
+		cout << ">>> Newsgroup already exists" << endl;
 	}
 	if(mh.read_command() != Protocol::ANS_END){
 		throw exception();
@@ -78,7 +78,7 @@ void create_newsgroup(MessageHandler mh){
 
 void delete_newsgroup(MessageHandler mh){
 	mh.write_command(Protocol::COM_DELETE_NG);
-	cout << "Type the ID number of the newsgroup you want to delete." << endl;
+	cout << ">>> Type the ID number of the newsgroup you want to delete." << endl;
 	cout << ">>> ";
 	int id;
 	cin >> id;
@@ -100,7 +100,7 @@ void delete_newsgroup(MessageHandler mh){
 
 void list_articles(MessageHandler mh){
 	mh.write_command(Protocol::COM_LIST_ART);
-	cout << "Type the ID of the newsgroup containing the articles." << endl;
+	cout << ">>> Type the ID of the newsgroup containing the articles." << endl;
 	int id;
 	cout << ">>> ";
 	cin >> id;
@@ -112,8 +112,8 @@ void list_articles(MessageHandler mh){
 	if(ans == Protocol::ANS_ACK) {
 		int nbr_articles = mh.read_number();
 		for(int i = 0; i < nbr_articles; ++i){
-			cout << "ID: " << mh.read_number() << "	";
-			cout << "Title: " << mh.read_string() << endl;
+			cout << ">>> ID: " << mh.read_number() << "	";
+			cout << ">>> Title: " << mh.read_string() << endl;
 		}
 
 	} else {
