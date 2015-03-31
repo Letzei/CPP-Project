@@ -23,7 +23,7 @@ void display_manual(){
 	cout << "5. Create article. <ID> <title> <author> \\n <text>" << endl;
 	cout << "6. Delete article. <IDgroup> <IDarticle>" << endl;
 	cout << "7. Get article. <IDgroup> <IDarticle>" << endl;
-	cout << "To display this manual again type \"help\", \"h\", \"man\" or \"manual\"" << endl;
+	cout << "To display this manual again type \"help\"" << endl;
 	cout << "==============================================================================================" << endl;
 
 }
@@ -126,20 +126,24 @@ void list_articles(MessageHandler mh){
 void create_article(MessageHandler mh) {
 	mh.write_command(Protocol::COM_CREATE_ART);
 	cout << ">>> Type the ID of the Newsgroup." << endl;
+	cout << ">>> ";
 	int id;
 	cin >> id;
 
 	cout << ">>> Type the Title of the article." << endl;
+	cout << ">>> ";
 	string title;
 	cin >> title;
 
 	cout << ">>> Type the Author of the article." << endl;
+	cout << ">>> ";
 	string author;
 	cin >> author;
 
-	cout << ">>> Type the text of the article, without pressing ENTER." << endl;
+	cout << ">>> Type the text of the article. End with '$' and press ENTER." << endl;
+	cout << ">>> ";
 	string text;
-	cin >> text;
+	getline(cin, text, '$');
 	
 	mh.write_number(id);
 	mh.write_string(title);
@@ -162,9 +166,11 @@ void create_article(MessageHandler mh) {
 void delete_article(MessageHandler mh) {
 	mh.write_command(Protocol::COM_DELETE_ART);
 	cout << ">>> Type the ID of the Newsgroup you want to delete." << endl;
+	cout << ">>> ";
 	int ng_id;
 	cin >> ng_id;
 	cout << ">>> Type the ID of the Article you want to delete." << endl;
+	cout << ">>> ";
 	int art_id;
 	cin >> art_id;
 	mh.write_number(ng_id);
@@ -287,7 +293,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 				default: /* not a number */
-					display_manual();
+				display_manual();
 				break;
 			}
 		} catch (ConnectionClosedException&) {
