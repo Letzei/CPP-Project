@@ -12,11 +12,6 @@
 
 using namespace std;
 
-/*
-bool is_numerical(const string& s){
-	return !s.empty() && find_if(s.begin(), s.end(), [](char c) {return !isdigit(c); }) == s.end();
-}
-*/
 void display_manual(){
 	cout << "==============================================================================================" << endl;
 	cout << "The different operations you can perform are listed below:" << endl;
@@ -40,24 +35,15 @@ void list_newsgroups(MessageHandler mh){
 	if(mh.read_command() != Protocol::ANS_LIST_NG){
 		throw exception();
 	}
-	if(mh.read_command() != Protocol::PAR_NUM){
-		throw exception();
-	}
 
 	int nr_ngs = mh.read_number();
 	cout << "Number of Newsgoups: " << nr_ngs << endl;
 
 	for(int i = 0; i < nr_ngs; ++i){
-		if(mh.read_command() != Protocol::PAR_NUM){
-			throw exception();
-		}
 		int id = mh.read_number();
 		cout << "Newsgroup ID: " << id << "		";
-		if(mh.read_command() != Protocol::PAR_STRING){
-			throw exception();
-		}
-		int nbr_chars = mh.read_number();
-		string name = mh.read_string(nbr_chars);
+
+		string name = mh.read_string();
 		cout << "Newsgroup Name: " << name << endl;
 	}
 	if(mh.read_command() != Protocol::ANS_END){
@@ -96,7 +82,6 @@ void delete_newsgroup(MessageHandler mh){
 	cout << ">>> ";
 	int id;
 	cin >> id;
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(id);
 	mh.write_command(Protocol::COM_END);
 
@@ -119,21 +104,16 @@ void list_articles(MessageHandler mh){
 	int id;
 	cout << ">>> ";
 	cin >> id;
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(id);
 	mh.write_command(Protocol::COM_END);
 
 	if(mh.read_command() != Protocol::ANS_LIST_ART) { throw exception(); }
 	unsigned char ans = mh.read_command();
 	if(ans == Protocol::ANS_ACK) {
-		if(mh.read_command() != Protocol::PAR_NUM) { throw exception(); }
 		int nbr_articles = mh.read_number();
 		for(int i = 0; i < nbr_articles; ++i){
-			if(mh.read_command() != Protocol::PAR_NUM) { throw exception(); }
 			cout << "ID: " << mh.read_number() << "	";
-			if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
-			int len = mh.read_number();
-			cout << "Title: " << mh.read_string(len) << endl;
+			cout << "Title: " << mh.read_string() << endl;
 		}
 
 	} else {
@@ -161,7 +141,6 @@ void create_article(MessageHandler mh) {
 	string text;
 	cin >> text;
 	
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(id);
 	mh.write_string(title);
 	mh.write_string(author);
@@ -188,9 +167,7 @@ void delete_article(MessageHandler mh) {
 	cout << ">>> Type the ID of the Article you want to delete." << endl;
 	int art_id;
 	cin >> art_id;
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(ng_id);
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(art_id);
 	mh.write_command(Protocol::COM_END);
 
@@ -219,30 +196,22 @@ void get_article(MessageHandler mh){
 	int art_id;
 	cin >> art_id;
 
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(ng_id);
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(art_id);
 	mh.write_command(Protocol::COM_END);
 
 	if(mh.read_command() != Protocol::ANS_GET_ART) { throw exception(); }
 	unsigned char ans = mh.read_command();
 	if(ans == Protocol::ANS_ACK){
-		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
-		int nbr_chars = mh.read_number();
-		string name = mh.read_string(nbr_chars);
+		string name = mh.read_string();
 
 		cout << ">>> Title: " << name << "	";
 
-		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
-		nbr_chars = mh.read_number();
-		name = mh.read_string(nbr_chars);
+		name = mh.read_string();
 
 		cout << ">>> Author: " << name << "	 ";
 
-		if(mh.read_command() != Protocol::PAR_STRING) { throw exception(); }
-		nbr_chars = mh.read_number();
-		name = mh.read_string(nbr_chars);
+		name = mh.read_string();
 
 		cout << ">>> Text: " << name << endl;
 	} else if (ans == Protocol::ANS_NAK){
@@ -318,6 +287,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 				default: /* not a number */
+					display_manual();
 				break;
 			}
 		} catch (ConnectionClosedException&) {

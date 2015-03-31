@@ -30,10 +30,8 @@ void list_newsgroups()
 
 	vector<Newsgroup> newsgroups = db.list_all_newsgroups();
 
-	mh.write_command(Protocol::PAR_NUM);
 	mh.write_number(db.get_size());
 	for (int i = 0; i < db.get_size(); ++i) {
-		mh.write_command(Protocol::PAR_NUM);
 		mh.write_number(newsgroups[i].get_id());
 		mh.write_string(newsgroups[i].get_name());
 	}
@@ -41,11 +39,7 @@ void list_newsgroups()
 }
 
 void create_newsgroup(){
-	if(mh.read_command() != Protocol::PAR_STRING) {
-		throw exception();
-	}
-	int number_of_chars = mh.read_number();
-	string newsgroup = mh.read_string(number_of_chars);
+	string newsgroup = mh.read_string();
 
 	if(mh.read_command() != Protocol::COM_END) {
 		throw exception();
@@ -65,9 +59,6 @@ void create_newsgroup(){
 }
 
 void delete_newsgroup(){
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 
 	int id = mh.read_number();
 
@@ -89,9 +80,6 @@ void delete_newsgroup(){
 }
 
 void list_articles(){
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 
 	int id = mh.read_number();
 
@@ -104,10 +92,8 @@ void list_articles(){
 	if(db.newsgroup_exists(id)){
 		mh.write_command(Protocol::ANS_ACK);
 		vector<Article> arts = db.list_articles(id);
-		mh.write_command(Protocol::PAR_NUM);
 		mh.write_number(arts.size());
 		for(auto a : arts) {
-			mh.write_command(Protocol::PAR_NUM);
 			mh.write_number(a.get_id());
 			mh.write_string(a.get_title());
 		}
@@ -119,9 +105,6 @@ void list_articles(){
 }
 
 void create_article(){
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 
 	int id = mh.read_number();
 
@@ -129,26 +112,11 @@ void create_article(){
 	string author;
 	string text;
 
-	if(mh.read_command() != Protocol::PAR_STRING) {
-		throw exception();
-	}
+	title = mh.read_string();
 
-	int number_of_chars = mh.read_number();
-	title = mh.read_string(number_of_chars);
+	author = mh.read_string();
 
-	if(mh.read_command() != Protocol::PAR_STRING) {
-		throw exception();
-	}
-
-	number_of_chars = mh.read_number();
-	author = mh.read_string(number_of_chars);
-
-	if(mh.read_command() != Protocol::PAR_STRING) {
-		throw exception();
-	}
-
-	number_of_chars = mh.read_number();
-	text = mh.read_string(number_of_chars);
+	text = mh.read_string();
 
 	if(mh.read_command() != Protocol::COM_END) {
 		throw exception();
@@ -168,14 +136,8 @@ void create_article(){
 }
 
 void delete_article(){
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 	int ng_id = mh.read_number();
 
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 	int art_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
@@ -199,14 +161,8 @@ void delete_article(){
 }
 
 void get_article(){
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 	int ng_id = mh.read_number();
 
-	if(mh.read_command() != Protocol::PAR_NUM) {
-		throw exception();
-	}
 	int art_id = mh.read_number();
 
 	if(mh.read_command() != Protocol::COM_END) {
