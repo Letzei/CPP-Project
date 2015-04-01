@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "article.h"
+#include <fstream>
 
 class Newsgroup{
 
@@ -13,7 +14,8 @@ private:
 	std::string name;
 	int id;
 public:
-
+	friend std::istream& operator>>(std::istream& inf, const std::vector<Newsgroup>&);	
+	friend std::ostream& operator<<(std::ostream& of, const std::vector<Newsgroup>&);
 	Newsgroup(int i, std::string n);
 	
 	Article get_article(unsigned int i);

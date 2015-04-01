@@ -244,6 +244,8 @@ int main(int argc, char* argv[]){
 
 	if(argc < 3) {
 		flag = false;
+	} else if(argv[3] > 0){
+		flag = true;	
 	}
 
 	int port = -1;
@@ -293,16 +295,17 @@ int main(int argc, char* argv[]){
 					break;
 
 					case Protocol::COM_DELETE_ART: // delete article
-						delete_article();
-						break;
+					delete_article();
+					break;
 
 					case Protocol::COM_GET_ART: // get article
-						get_article();
-						break;
+					get_article();
+					break;
 
 					default:
 						break;
 					}
+					db.write_database();
 				} catch (ConnectionClosedException&) {
 					server.deregisterConnection(conn);
 					cout << "Client closed connection" << endl;

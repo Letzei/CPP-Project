@@ -9,8 +9,11 @@
 
 class Database {
 public:
-
+	
 	Database();
+	
+	//Specifies if the database will be in memory or written to a file
+	void set_persistent(bool);
 
 	Database(const std::string&);
 
@@ -53,7 +56,7 @@ public:
 	* if newsgroup doesn't exists.
 	*/
 	bool create_article(int, const std::string&,
-		const std::string&, const std::string&);
+	const std::string&, const std::string&);
 
 	/*
 	* Adds new article in specified NewsGroup. Returns false
@@ -61,8 +64,13 @@ public:
 	*/
 	bool delete_article(const int ng_id, const int art_id);
 	Article get_article(const int ng_id, const int art_id);
+
+	//Either saves the current information stored in the database to a file or does nothing.
+	void write_database();
+	void read_database();
 private:
-	std::string file;
 	std::vector<Newsgroup> newsgroups;
+	bool in_mem;
 };
 #endif
+

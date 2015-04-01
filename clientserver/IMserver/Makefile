@@ -1,5 +1,5 @@
-CC = g++
-CXX = g++
+CC = clang++
+CXX = clang++
 CFLAGS = -g -Wall -Wextra
 CXXFLAGS = -g -Wall -Wextra -pedantic -std=c++11
 LDFLAGS = -L..
@@ -16,4 +16,4 @@ clean:
 	rm -f *.o *.d
 
 run: clean IMserver IMclient
-	./IMserver 1338
+	./IMserver 1337

@@ -4,18 +4,16 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
-Database::Database()
-{
-	file = "";
+Database::Database(){}
+
+void Database::set_persistent(bool f){
+	in_mem = f;	
 }
 
-Database::Database(const string& filename){
-	//read from file.. maybe make a method get_file() to check from outside if we want to write to/from a file
-	file = filename;
-}
 
 int Database::get_size(){
 	int size = count_if(newsgroups.begin(), newsgroups.end(), [&] 
@@ -133,3 +131,35 @@ Article Database::get_article(const int ng_id, const int art_id){
 	Article art(-1,"","","");
 	return art;
 }
+
+
+void Database::write_database(){
+	if(in_mem){
+		return;	
+	}
+	ofstream ofile("db.txt");
+	ofile << newsgroups;
+}
+
+void Database::read_database(){
+		
+}
+
+std::istream& operator>>(istream& inf, const vector<Newsgroup>& vect){
+		
+}
+
+std::ostream& operator<<(ostream& of, const vector<Newsgroup>& vect){
+	for(auto nws : vect)
+	{
+		of << nws.name << "§";
+		for(auto art : nws.articles)
+		{
+			of << art.get_title() << "$" << art.get_author() << "$" << art.get_content();	
+		}
+		of << endl;
+	}	
+	return of;
+}
+
+
