@@ -142,11 +142,18 @@ void Database::write_database(){
 }
 
 void Database::read_database(){
-		
+	if(in_mem){
+		return;	
+	}	
+	ifstream ifile("db.txt");
+	ifile >> newsgroups;
 }
 
 std::istream& operator>>(istream& inf, const vector<Newsgroup>& vect){
-		
+	string nwsgrp;
+	while(getline(inf, nwsgrp)){
+		cout << inf << endl;	
+	}
 }
 
 std::ostream& operator<<(ostream& of, const vector<Newsgroup>& vect){

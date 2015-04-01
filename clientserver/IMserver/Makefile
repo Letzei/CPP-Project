@@ -16,4 +16,4 @@ clean:
 	rm -f *.o *.d
 
 run: clean IMserver IMclient
-	./IMserver 1337
+	./IMserver 1337 1

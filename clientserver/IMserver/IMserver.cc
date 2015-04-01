@@ -263,6 +263,12 @@ int main(int argc, char* argv[]){
 	} else {
 		cout << "Server Initialized." << endl;
 	}
+	
+	if(flag){
+		db.write_database();	
+		db.set_persistent(flag);
+	}
+	
 	while (true) {
 		auto conn = server.waitForActivity();
 
