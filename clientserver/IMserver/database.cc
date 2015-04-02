@@ -11,7 +11,7 @@ using namespace std;
 Database::Database(){}
 
 void Database::set_persistent(bool f){
-	in_mem = f;	
+	in_file = f;	
 }
 
 
@@ -133,28 +133,58 @@ Article Database::get_article(const int ng_id, const int art_id){
 }
 
 
-void Database::write_database(){
-	if(in_mem){
-		return;	
+void Database::write_database(string file_name){
+	if(!in_file){
+		return;
+		cout << "Not using filesystem." << endl;
 	}
-	ofstream ofile("db.txt");
+	ofstream ofile(file_name);
 	ofile << newsgroups;
 }
 
-void Database::read_database(){
-	if(in_mem){
-		return;	
-	}	
-	ifstream ifile("db.txt");
-	ifile >> newsgroups;
+std::istream& operator>>(istream& inf, Database& db){
+	string nwname, title, author, content, ng;
+	while(getline(inf, ng, '#')){
+		int id = 0;
+		size_t i = ng.find("§");
+		nwname = ng.substr(0, i);
+		ng.erase(0, i+2);
+		db.create_newsgroup(nwname);
+		while(ng.find("$") != string::npos){
+			cout << ng << endl << endl << endl;
+			i = ng.find("$");
+			title = ng.substr(0, i);
+			ng.erase(0, i+1);
+
+			i = ng.find("$");
+			author = ng.substr(0, i);
+			ng.erase(0, i+1);
+			
+			i = ng.find("$");
+			content = ng.substr(0, i);
+			ng.erase(0, i+1);
+			//cout << "Title: " << title << "    Author: " << author << "    Content: " << content << " :" << endl << endl << endl;
+			db.create_article(id++, title, author, content);
+			
+	}
+
+
+		
+		//cout << "What was erased: " << nwname << endl;
+		//cout << "What is left:  " << newsgroup << endl;
+	}
+	return inf;
 }
 
-std::istream& operator>>(istream& inf, const vector<Newsgroup>& vect){
-	string nwsgrp;
-	while(getline(inf, nwsgrp)){
-		cout << inf << endl;	
-	}
+void Database::read_database(string file_name){
+	if(!in_file){
+		cout << "Not using filesystem." << endl;
+		return;	
+	}	
+	ifstream ifile(file_name);
+		ifile >> *this; //:TODO: Lyckas skicka in databasen
 }
+
 
 std::ostream& operator<<(ostream& of, const vector<Newsgroup>& vect){
 	for(auto nws : vect)
@@ -162,7 +192,7 @@ std::ostream& operator<<(ostream& of, const vector<Newsgroup>& vect){
 		of << nws.name << "§";
 		for(auto art : nws.articles)
 		{
-			of << art.get_title() << "$" << art.get_author() << "$" << art.get_content();	
+			of << art.get_title() << "$" << art.get_author() << "$" << art.get_content() << "#";	
 		}
 		of << endl;
 	}	

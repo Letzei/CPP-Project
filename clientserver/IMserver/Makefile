@@ -9,11 +9,11 @@ LDLIBS = -lclientserver
 
 all: IMserver IMclient
 
-IMserver: IMserver.o database.o messagehandler.o newsgroup.o article.o
+IMserver: IMserver.o messagehandler.o newsgroup.o database.o article.o
 IMclient: IMclient.o messagehandler.o 
 
 clean:
 	rm -f *.o *.d
 
 run: clean IMserver IMclient
-	./IMserver 1338 1
+	./IMserver 1337 db.txt

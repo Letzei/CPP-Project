@@ -6,12 +6,12 @@
 #include <vector>
 #include "newsgroup.h"
 #include "article.h"
+#include <fstream>
 
 class Database {
 public:
-	
 	Database();
-	
+	//friend std::istream& operator>>(std::ifstream, Database&); //:TODO: Ska den vara friend?	
 	//Specifies if the database will be in memory or written to a file
 	void set_persistent(bool);
 
@@ -66,11 +66,11 @@ public:
 	Article get_article(const int ng_id, const int art_id);
 
 	//Either saves the current information stored in the database to a file or does nothing.
-	void write_database();
-	void read_database();
+	void write_database(std::string);
+	void read_database(std::string);
 private:
 	std::vector<Newsgroup> newsgroups;
-	bool in_mem;
+	bool in_file;
 };
 #endif
 

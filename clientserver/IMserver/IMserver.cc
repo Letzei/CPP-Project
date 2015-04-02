@@ -200,7 +200,7 @@ int main(int argc, char* argv[]){
 
 	if(argc < 3) {
 		flag = false;
-	} else if(argv[3] > 0){
+	} else {
 		flag = true;	
 	}
 
@@ -221,8 +221,8 @@ int main(int argc, char* argv[]){
 	}
 	
 	if(flag){
-		db.write_database();	
 		db.set_persistent(flag);
+		db.read_database(argv[2]);	
 	}
 	
 	while (true) {
@@ -267,7 +267,8 @@ int main(int argc, char* argv[]){
 					default:
 						break;
 					}
-					db.write_database();
+					db.write_database(argv[2]);
+					cout << "Databse written to file: " << argv[2] << endl;
 				} catch (ConnectionClosedException&) {
 					server.deregisterConnection(conn);
 					cout << "Client closed connection" << endl;
