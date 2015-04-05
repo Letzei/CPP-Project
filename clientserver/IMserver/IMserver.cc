@@ -268,7 +268,7 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					db.write_database(argv[2]);
-					cout << "Databse written to file: " << argv[2] << endl;
+					cout << "Database written to file: " << argv[2] << endl;
 				} catch (ConnectionClosedException&) {
 					server.deregisterConnection(conn);
 					cout << "Client closed connection" << endl;

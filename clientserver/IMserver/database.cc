@@ -146,16 +146,15 @@ std::istream& operator>>(istream& inf, Database& db){
 	string nwname, title, author, content, ng;
 	while(getline(inf, ng, '#')){
 		int id = 0;
-		size_t i = ng.find("§");
+		size_t i = ng.find("$");
 		nwname = ng.substr(0, i);
-		ng.erase(0, i+2);
+		ng.erase(0, i+1);
 		db.create_newsgroup(nwname);
 		while(ng.find("$") != string::npos){
-			cout << ng << endl << endl << endl;
 			i = ng.find("$");
 			title = ng.substr(0, i);
 			ng.erase(0, i+1);
-
+			
 			i = ng.find("$");
 			author = ng.substr(0, i);
 			ng.erase(0, i+1);
@@ -165,11 +164,7 @@ std::istream& operator>>(istream& inf, Database& db){
 			ng.erase(0, i+1);
 			//cout << "Title: " << title << "    Author: " << author << "    Content: " << content << " :" << endl << endl << endl;
 			db.create_article(id++, title, author, content);
-			
-	}
-
-
-		
+	}	
 		//cout << "What was erased: " << nwname << endl;
 		//cout << "What is left:  " << newsgroup << endl;
 	}
@@ -182,7 +177,7 @@ void Database::read_database(string file_name){
 		return;	
 	}	
 	ifstream ifile(file_name);
-		ifile >> *this; //:TODO: Lyckas skicka in databasen
+		ifile >> *this;
 }
 
 
