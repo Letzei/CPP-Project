@@ -144,8 +144,9 @@ void Database::write_database(string file_name){
 
 std::istream& operator>>(istream& inf, Database& db){
 	string nwname, title, author, content, ng;
+	int id = 0;
 	while(getline(inf, ng, '#')){
-		int id = 0;
+		cout << "Ng at the moment: " << endl << ng << endl << endl;
 		size_t i = ng.find("$");
 		nwname = ng.substr(0, i);
 		ng.erase(0, i+1);
@@ -162,9 +163,11 @@ std::istream& operator>>(istream& inf, Database& db){
 			i = ng.find("$");
 			content = ng.substr(0, i);
 			ng.erase(0, i+1);
+			cout << "ID: " << id;
 			//cout << "Title: " << title << "    Author: " << author << "    Content: " << content << " :" << endl << endl << endl;
-			db.create_article(id++, title, author, content);
-	}	
+			db.create_article(id, title, author, content);
+		}	
+		id++;
 		//cout << "What was erased: " << nwname << endl;
 		//cout << "What is left:  " << newsgroup << endl;
 	}
@@ -184,12 +187,12 @@ void Database::read_database(string file_name){
 std::ostream& operator<<(ostream& of, const vector<Newsgroup>& vect){
 	for(auto nws : vect)
 	{
-		of << nws.name << "§";
+		of << nws.name << "$";
 		for(auto art : nws.articles)
 		{
-			of << art.get_title() << "$" << art.get_author() << "$" << art.get_content() << "#";	
+			of << art.get_title() << "$" << art.get_author() << "$" << art.get_content() << "$";	
 		}
-		of << endl;
+		of << "#";
 	}	
 	return of;
 }
